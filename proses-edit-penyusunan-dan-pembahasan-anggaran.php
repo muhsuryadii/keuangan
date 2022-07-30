@@ -1,0 +1,38 @@
+<?php
+
+session_start();
+
+include('koneksi.php');
+
+ define('LOG','log.txt');
+function write_log($log){  
+ $time = @date('[Y-d-m:H:i:s]');
+ $op=$time.' '.$log."\n".PHP_EOL;
+ $fp = @fopen(LOG, 'a');
+ $write = @fwrite($fp, $op);
+ @fclose($fp);
+}
+$id = $_GET['id_penyusunan_dan_pembahasan_anggaran'];
+$no_ppa =  $_GET['no_ppa'];
+$tgl= $_GET['tgl'];
+$debet = $_GET['debet'];
+$kredit = $_GET['kredit'];
+$uraian_kegiatan =  $_GET['uraian_kegiatan'];
+
+
+//query update
+$query = mysqli_query($koneksi,"UPDATE penyusunan_dan_pembahasan_anggaran SET tgl='$tgl' , debet='$debet', kredit='$kredit', uraian_kegiatan='$uraian_kegiatan',no_ppa='$no_ppa' WHERE id_penyusunan_dan_pembahasan_anggaran='$id' ");
+
+$namaadmin = $_SESSION['nama'];
+if ($query) {
+write_log("Nama Admin : ".$namaadmin." => Edit id_penyusunan_dan_pembahasan_anggaran => ".$id." => Sukses Edit");
+ # credirect ke page index
+ header("location:penyusunan_dan_pembahasan_anggaran.php"); 
+}
+else{
+write_log("Nama Admin : ".$namaadmin." => Edit id_penyusunan_dan_pembahasan_anggaran => ".$id." => Gagal Edit");
+ echo "ERROR, data gagal diupdate". mysqli_error($koneksi);
+}
+
+//mysql_close($host);
+?>

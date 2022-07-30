@@ -1,0 +1,329 @@
+<?php
+require 'cek-sesi.php';
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Dana Sosial</title>
+
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+<?php 
+require 'koneksi.php';
+require ('sidebar.php'); ?>   
+     <!-- Main Content -->
+      <div id="content">
+
+<?php require ('navbar.php'); ?> 
+
+		        <!-- Begin Page Content -->
+        <div class="container-fluid">
+          <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">DANA SOSIAL</h1>
+      </div>
+   <!-- Content Row -->
+          <div class="row">
+         
+                  <?php 
+$admin = mysqli_query($koneksi, "SELECT * FROM admin");
+$admin = mysqli_num_rows($admin);
+
+$jumlahdebet = mysqli_query($koneksi, "SELECT debet FROM dana_sosial where tgl");
+$jumlahdebet = mysqli_fetch_array($jumlahdebet);
+ 
+$jumlahkredit = mysqli_query($koneksi, "SELECT kredit FROM dana_sosial where tgl");
+$jumlahkredit = mysqli_fetch_array($jumlahkredit);
+
+$dana_sosial=mysqli_query($koneksi,"SELECT * FROM dana_sosial");
+while ($masuk=mysqli_fetch_array($dana_sosial)){
+$arraydebet[] = $masuk['debet'];
+}
+$jumlahdebet = array_sum($arraydebet);
+
+$dana_sosial=mysqli_query($koneksi,"SELECT * FROM dana_sosial");
+while ($masuk=mysqli_fetch_array($dana_sosial)){
+$arraykredit[] = $masuk['kredit'];
+}
+$jumlahkredit = array_sum($arraykredit);
+
+$uang=$jumlahkredit - $jumlahdebet;
+
+ ?>
+              <!-----debet ----->
+              <div class="col-xl-5 col-md-1 mb-2">
+              <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">DEBET</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        Rp. <?=number_format($jumlahdebet,2,',','.');?></div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </div>
+             <!-- kredit -->
+            <div class="col-xl-5 col-md-6 mb-2">
+              <div class="card border-left-success shadow h-40 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-success text-uppercase mb-3">KREDIT</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      Rp.<?php echo number_format($jumlahkredit,2,',','.');?></div>
+                    </div> 
+                  </div>
+                </div>  
+             </div>
+            </div>
+
+            <!-- Earnings (Monthly) Card Example -->
+            <div class="col-xl-5 col-md-6 mb-4">
+              <div class="card border-left-info shadow h-40 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Sisa Uang</div>
+                      <div class="row no-gutters align-items-center">
+                        <div class="col-auto">
+                          <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">Rp.<?=number_format($uang,2,',','.');?></div>
+                        </div>   
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+			           <!-- DataTales Example -->
+					   <div class="col-xl-11 col-lg-7">
+					   <button type="button" class="btn btn-success" style="margin:5px" data-toggle="modal" data-target="#myModalTambah" aria-expanded="true" arial-control="myModalTambah"><i class="fa fa-plus"> Dana Sosial</i></button><br>
+
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Transaksi Masuk</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+               <table class="table table-bordered" id="dataTable" width="140%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>no</th>
+                      <th>NO_PPA</th>
+                      <th>Tanggal</th>
+                      <th>Debet</th>
+                      <th>Kredit</th>
+                      <th>keterangan</th>
+					            <th>Aksi</th>
+                    </tr>
+                 
+                   <tfoot>
+                      <tr style="font-weight: bold;">
+                          <th colspan="3">Total</th>
+              <th>Rp. <?=number_format($jumlahdebet,2,',','.');?></th>
+              <th>Rp. <?=number_format($jumlahkredit,2,',','.');?></th>
+              <th>Rp. <?=number_format($jumlahkredit - $jumlahdebet);?></th>
+                      </tr>
+
+                    </tfoot>
+
+                      <?php 
+                $query = mysqli_query($koneksi,"SELECT * FROM dana_sosial");
+                $no = 1;
+                while ($data = mysqli_fetch_assoc($query)) 
+                {
+                ?>
+
+                    <tr>
+                      <td><?=$no++;?></td>
+                      <td><?=$data['no_ppa']?></td>
+                      <td><?=$data['tgl']?></td>
+                      <td>Rp. <?=number_format($data['debet'],2,',','.');?></td>
+                      <td>Rp. <?=number_format($data['kredit'],2,',','.');?></td>
+                      <td><?=$data['uraian_kegiatan']?></td>
+                      <td>
+                        <a href="#" type="button" class=" fa fa-edit btn btn-primary btn-md" data-toggle="modal" data-target="#myModal<?php echo $data['id_dana_sosial']; ?>"></a>
+                      </td>
+                      </tr>
+                  </thead> 
+
+                    
+                    <!-- Button untuk modal -->
+
+<!-- Modal Edit -->
+<div class="modal fade" id="myModal<?php echo $data['id_dana_sosial']; ?>" role="dialog">
+<div class="modal-dialog">
+
+<!-- Modal content-->
+<div class="modal-content">
+<div class="modal-header">
+<h4 class="modal-title">Ubah Data Dana Sosial</h4>
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+</div>
+<div class="modal-body">
+<form role="form" action="proses-edit-dana-sosial.php" method="get">
+
+<?php
+$id= $data['id_dana_sosial']; 
+$query_edit = mysqli_query($koneksi,"SELECT * FROM dana_sosial WHERE id_dana_sosial='$id'");
+//$result = mysqli_query($conn, $query);
+while ($row = mysqli_fetch_array($query_edit)) {  
+?>
+
+
+<input type="hidden" name="id_dana_sosial" value="<?php echo $row['id_dana_sosial']; ?>">
+
+<div class="form-group">
+
+<label>NO_PPA</label>
+<input type="text" name="no_ppa" class="form-control" value="<?php echo $row['no_ppa']; ?>">      
+</div>
+
+<div class="form-group">
+<label>Tanggal</label>
+<input type="date" name="tgl" class="form-control" value="<?php echo $row['tgl']; ?>">      
+</div>
+
+<div class="form-group">
+<label>debet</label>
+<input type="text" name="debet" class="form-control" value="<?php echo $row['debet']; ?>">      
+</div>
+
+<div class="form-group">
+<label>kredit</label>
+<input type="text" name="kredit" class="form-control" value="<?php echo $row['kredit']; ?>">      
+</div>
+
+<div class="form-group">
+<label>Keterangan</label>
+<input type="text" name="uraian_kegiatan" class="form-control" value="<?php echo $row['uraian_kegiatan']; ?>">
+</input>     
+</div>
+
+<div class="modal-footer">  
+<button type="submit" class="btn btn-success">Ubah</button>
+<a href="hapus-dana-sosial.php?id_dana_sosial=<?=$row['id_dana_sosial'];?>" Onclick="confirm('Anda Yakin Ingin Menghapus?')" class="btn btn-danger">Hapus</a>
+<button type="button" class="btn btn-default" data-dismiss="modal">Keluar</button>
+</div>
+<?php 
+}
+//mysql_close($host);
+?>  
+       
+</form>
+</div>
+</div>
+
+</div>
+</div>
+
+
+
+ <!-- Modaltambah -->
+  <div id="myModalTambah" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- konten modal-->
+      <div class="modal-content">
+        <!-- heading modal -->
+        <div class="modal-header">
+          <h4 class="modal-title">Tambah Dana Sosial</h4>
+		    <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <!-- body modal -->
+		<form action="tambah-dana-sosial.php" method="post">
+      <div class="modal-body">
+    no_ppa : 
+         <input type="text" class="form-control" name="no_ppa">
+    Tanggal : 
+         <input type="date" class="form-control" name="tgl">
+    Debet : 
+         <input type="number" class="form-control" name="debet">
+    Kredit : 
+         <input type="number" class="form-control" name="kredit">
+    keterangan : 
+         <input type="text" class="form-control" name="uraian_kegiatan">
+     </input>
+        </div>
+        <!-- footer modal -->
+        <div class="modal-footer">
+		<button type="submit" class="btn btn-success" name="tambah-dana-sosial" id="tambah-dana-sosial">Tambah</button>
+		</form>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Keluar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<?php               
+} 
+?>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+		  </div>
+
+
+       </div>
+        <!-- /.container-fluid -->
+
+      </div>
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Logout Modal-->
+<?php require 'logout-modal.php';?>
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="js/sb-admin-2.min.js"></script>
+
+  <!-- Page level plugins -->
+  <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+  <!-- Page level custom scripts -->
+  <script src="js/demo/datatables-demo.js"></script>
+
+</body>
+
+</html>
